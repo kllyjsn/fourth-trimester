@@ -991,7 +991,7 @@ function ColorsScreen({ onBack, onEarnStar }: { onBack: () => void; onEarnStar: 
   const [shuffled, setShuffled] = useState<number[]>(() => shuffle());
 
   useEffect(() => {
-    setShuffled(shuffle());
+    if (score > 0) setShuffled(shuffle());
   }, [score]);
 
   const currentColor = colors[currentIndex % colors.length];
