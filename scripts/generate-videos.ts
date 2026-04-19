@@ -84,6 +84,10 @@ async function main() {
           negativePrompt: NEGATIVE_PROMPT,
           numberOfVideos: 1,
           personGeneration: "allow_all",
+          // Silent demonstrations only: avoids Veo's audio safety filter,
+          // which was rejecting many breath-cueing prompts with
+          // "issue with the audio for your prompt".
+          generateAudio: false,
         },
       });
 
