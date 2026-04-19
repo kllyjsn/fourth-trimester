@@ -42,6 +42,7 @@ export interface ProgressState {
   setOnboarded: (v: boolean) => void;
   setName: (v: string) => void;
   setStartWeeksPostpartum: (v: number) => void;
+  setStartDate: (v: string) => void;
   setCleared: (v: boolean) => void;
   setCsection: (v: boolean) => void;
   setActiveDiastasis: (v: boolean) => void;
@@ -75,6 +76,7 @@ export const useProgress = create<ProgressState>()(
       setOnboarded: (v) => set({ onboarded: v }),
       setName: (v) => set({ name: v }),
       setStartWeeksPostpartum: (v) => set({ startWeeksPostpartum: v }),
+      setStartDate: (v) => set({ startDate: v }),
       setCleared: (v) => set({ cleared: v }),
       setCsection: (v) => set({ csection: v }),
       setActiveDiastasis: (v) => set({ activeDiastasis: v }),

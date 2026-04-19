@@ -81,8 +81,8 @@ export function Today() {
                     {e.name}
                   </div>
                   <div className="truncate text-xs text-ink-500">
-                    {Math.round(e.durationSec / (e.unilateral ? 1 : 1))}s
-                    {e.unilateral ? " per side" : ""} · {e.category}
+                    {e.durationSec}s{e.unilateral ? " per side" : ""} ·{" "}
+                    {e.category}
                   </div>
                 </div>
               </div>
