@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import "./App.css";
 
 type Screen =
@@ -255,9 +255,16 @@ function PizzaScreen({ onBack, onEarnStar }: { onBack: () => void; onEarnStar: (
     );
   };
 
+  const bakeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => { if (bakeTimerRef.current) clearTimeout(bakeTimerRef.current); };
+  }, []);
+
   const bake = () => {
     setBaking(true);
-    setTimeout(() => {
+    bakeTimerRef.current = setTimeout(() => {
+      bakeTimerRef.current = null;
       setBaking(false);
       setStep(3);
       onEarnStar();
@@ -642,9 +649,16 @@ function SoupScreen({ onBack, onEarnStar }: { onBack: () => void; onEarnStar: ()
     );
   };
 
+  const stirTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => { if (stirTimerRef.current) clearTimeout(stirTimerRef.current); };
+  }, []);
+
   const stir = () => {
     setStirring(true);
-    setTimeout(() => {
+    stirTimerRef.current = setTimeout(() => {
+      stirTimerRef.current = null;
       setStirring(false);
       setStep(2);
       onEarnStar();
@@ -965,15 +979,19 @@ function ColorsScreen({ onBack, onEarnStar }: { onBack: () => void; onEarnStar: 
   const [score, setScore] = useState(0);
   const [showWrong, setShowWrong] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
-  const [shuffled, setShuffled] = useState<number[]>([]);
-
-  useEffect(() => {
-    const indices = colors.map((_, i) => i);
+  const shuffle = () => {
+    const indices = [0, 1, 2, 3, 4, 5];
     for (let i = indices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [indices[i], indices[j]] = [indices[j], indices[i]];
     }
-    setShuffled(indices);
+    return indices;
+  };
+
+  const [shuffled, setShuffled] = useState<number[]>(() => shuffle());
+
+  useEffect(() => {
+    if (score > 0) setShuffled(shuffle());
   }, [score]);
 
   const currentColor = colors[currentIndex % colors.length];
@@ -1004,7 +1022,7 @@ function ColorsScreen({ onBack, onEarnStar }: { onBack: () => void; onEarnStar: 
       {showCelebration && (
         <Celebration
           message="You know all your colors! &#127912;"
-          onDone={() => { setShowCelebration(false); setScore(0); setCurrentIndex(0); }}
+          onDone={() => { setShowCelebration(false); setScore(0); setCurrentIndex(0); setShuffled(shuffle()); }}
         />
       )}
 
