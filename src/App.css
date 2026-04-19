@@ -177,6 +177,29 @@
   transform: scale(1.05);
 }
 
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(255,255,255,0.3); }
+  50% { box-shadow: 0 0 20px rgba(255,255,255,0.6), 0 0 30px rgba(255,200,100,0.3); }
+}
+
+@keyframes walk-bounce {
+  0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+  25% { transform: translate(-50%, -50%) translateY(-4px); }
+  50% { transform: translate(-50%, -50%) translateY(0); }
+  75% { transform: translate(-50%, -50%) translateY(-3px); }
+}
+
+.dollhouse-room {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.dollhouse-room:hover {
+  z-index: 10;
+  animation: glow-pulse 1.5s ease-in-out infinite;
+}
+.dollhouse-room:active {
+  transform: scale(0.95);
+}
+
 .star {
   display: inline-block;
   animation: sparkle 1s ease-in-out infinite;

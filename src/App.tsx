@@ -78,35 +78,46 @@ function StarsDisplay({ count }: { count: number }) {
 function WelcomeScreen({ onEnter }: { onEnter: () => void }) {
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center p-6"
+      className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden"
       style={{
-        background: "linear-gradient(180deg, #87CEEB 0%, #98FB98 60%, #90EE90 100%)",
+        background: "linear-gradient(180deg, #87CEEB 0%, #b5e8ff 40%, #98FB98 70%, #90EE90 100%)",
       }}
     >
+      {/* Clouds */}
+      <div className="absolute top-8 left-8 text-5xl animate-float" style={{ animationDelay: "0s", opacity: 0.7 }}>&#9729;&#65039;</div>
+      <div className="absolute top-16 right-16 text-4xl animate-float" style={{ animationDelay: "1.5s", opacity: 0.6 }}>&#9729;&#65039;</div>
+      <div className="absolute top-6 left-1/3 text-3xl animate-float" style={{ animationDelay: "0.8s", opacity: 0.5 }}>&#9729;&#65039;</div>
+
       {/* Sun */}
       <div
-        className="animate-float text-8xl mb-2"
-        style={{ position: "absolute", top: 30, right: 40 }}
+        className="animate-float text-8xl"
+        style={{ position: "absolute", top: 20, right: 30, filter: "drop-shadow(0 0 15px rgba(255,200,0,0.5))" }}
       >
         &#9728;&#65039;
       </div>
 
-      {/* House */}
-      <div className="animate-bounce-in mb-6">
+      {/* Birds */}
+      <div className="absolute top-24 left-1/4 text-2xl animate-float" style={{ animationDelay: "0.3s" }}>&#128038;</div>
+      <div className="absolute top-32 right-1/4 text-xl animate-float" style={{ animationDelay: "1.2s" }}>&#128038;</div>
+
+      {/* Dollhouse with girl */}
+      <div className="animate-bounce-in mb-4 relative">
         <div className="text-center">
-          <div className="text-9xl">&#127968;</div>
+          <div style={{ fontSize: "8rem", lineHeight: 1, filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.2))" }}>&#127968;</div>
         </div>
+        {/* Girl standing in front of house */}
+        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 animate-wiggle" style={{ fontSize: "3.5rem" }}>&#128103;</div>
       </div>
 
       <h1
-        className="text-5xl font-black mb-3 text-center animate-rainbow"
+        className="text-5xl font-black mb-2 text-center animate-rainbow"
         style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.15)" }}
       >
         Avery&apos;s House
       </h1>
 
-      <p className="text-2xl font-bold text-white mb-8 text-center" style={{ textShadow: "1px 1px 3px rgba(0,0,0,0.2)" }}>
-        Tap to come inside!
+      <p className="text-xl font-bold text-white mb-6 text-center" style={{ textShadow: "1px 1px 3px rgba(0,0,0,0.2)" }}>
+        Help Avery explore her dollhouse!
       </p>
 
       <button
@@ -116,73 +127,389 @@ function WelcomeScreen({ onEnter }: { onEnter: () => void }) {
           background: "linear-gradient(135deg, #FF6B6B, #FF8E8E)",
           color: "#fff",
           fontSize: "1.6rem",
-          minWidth: 200,
+          minWidth: 220,
           minHeight: 80,
+          boxShadow: "0 6px 20px rgba(255,107,107,0.4)",
         }}
       >
         <span className="text-4xl">&#128075;</span>
-        Let&apos;s Play!
+        Come Inside!
       </button>
 
-      {/* Decorative elements */}
-      <div className="flex gap-4 mt-8 text-4xl">
+      {/* Garden flowers */}
+      <div className="flex gap-3 mt-6 text-3xl">
         <span className="animate-float" style={{ animationDelay: "0s" }}>&#127803;</span>
-        <span className="animate-float" style={{ animationDelay: "0.5s" }}>&#127799;</span>
-        <span className="animate-float" style={{ animationDelay: "1s" }}>&#127804;</span>
-        <span className="animate-float" style={{ animationDelay: "1.5s" }}>&#127800;</span>
-        <span className="animate-float" style={{ animationDelay: "2s" }}>&#127803;</span>
+        <span className="animate-float" style={{ animationDelay: "0.4s" }}>&#127799;</span>
+        <span className="animate-float" style={{ animationDelay: "0.8s" }}>&#127804;</span>
+        <span className="animate-float" style={{ animationDelay: "1.2s" }}>&#127800;</span>
+        <span className="animate-float" style={{ animationDelay: "1.6s" }}>&#127803;</span>
+        <span className="animate-float" style={{ animationDelay: "2.0s" }}>&#127799;</span>
       </div>
+
+      {/* Butterfly and ladybug */}
+      <div className="absolute bottom-20 left-10 text-3xl animate-float" style={{ animationDelay: "0.5s" }}>&#129419;</div>
+      <div className="absolute bottom-24 right-12 text-2xl animate-float" style={{ animationDelay: "1.8s" }}>&#128030;</div>
     </div>
   );
 }
 
-// --- House screen ---
+// --- Dollhouse screen with walking girl ---
+type RoomId = "kitchen" | "playroom" | "bedroom";
+
 function HouseScreen({ onNavigate }: { onNavigate: (screen: Screen) => void }) {
-  const rooms = [
-    { screen: "kitchen" as Screen, emoji: "&#129379;", label: "Kitchen", subtitle: "Cook yummy food!", color: "#FF6B6B", gradient: "linear-gradient(135deg, #FF6B6B, #ee5a24)" },
-    { screen: "playroom" as Screen, emoji: "&#129513;", label: "Playroom", subtitle: "Play with toys!", color: "#4ECDC4", gradient: "linear-gradient(135deg, #4ECDC4, #44bd9e)" },
-    { screen: "bedroom" as Screen, emoji: "&#128716;", label: "Bedroom", subtitle: "Cozy and fun!", color: "#A29BFE", gradient: "linear-gradient(135deg, #A29BFE, #6c5ce7)" },
+  const [girlRoom, setGirlRoom] = useState<RoomId | "outside">("outside");
+  const [walking, setWalking] = useState(false);
+  const [targetRoom, setTargetRoom] = useState<RoomId | null>(null);
+  const [sparkles, setSparkles] = useState<string[]>([]);
+  const walkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => { if (walkTimerRef.current) clearTimeout(walkTimerRef.current); };
+  }, []);
+
+  const rooms: { id: RoomId; screen: Screen; emoji: string; label: string; bgColor: string; borderColor: string; row: number; col: number; items: string[] }[] = [
+    { id: "bedroom", screen: "bedroom", emoji: "&#128716;", label: "Bedroom", bgColor: "#e8daef", borderColor: "#af7ac5", row: 0, col: 0, items: ["&#128059;&#8205;&#10052;&#65039;", "&#128161;"] },
+    { id: "playroom", screen: "playroom", emoji: "&#129513;", label: "Playroom", bgColor: "#d5f5e3", borderColor: "#58d68d", row: 0, col: 1, items: ["&#127912;", "&#129513;"] },
+    { id: "kitchen", screen: "kitchen", emoji: "&#129379;", label: "Kitchen", bgColor: "#fdebd0", borderColor: "#f0b27a", row: 1, col: 0, items: ["&#127858;", "&#129387;"] },
   ];
+
+  const handleRoomTap = (roomId: RoomId) => {
+    if (walking) return;
+    setWalking(true);
+    setTargetRoom(roomId);
+
+    // Add sparkle trail
+    setSparkles(["&#10024;", "&#10024;", "&#10024;"]);
+    setTimeout(() => setSparkles([]), 600);
+
+    // Girl walks to room
+    walkTimerRef.current = setTimeout(() => {
+      setGirlRoom(roomId);
+      setWalking(false);
+      setTargetRoom(null);
+
+      // Brief pause then enter room
+      walkTimerRef.current = setTimeout(() => {
+        const room = rooms.find(r => r.id === roomId);
+        if (room) onNavigate(room.screen);
+      }, 500);
+    }, 800);
+  };
+
+  // Girl position based on current room
+  const getGirlPosition = (): { top: string; left: string } => {
+    if (walking && targetRoom) {
+      // Move toward target room
+      switch (targetRoom) {
+        case "bedroom": return { top: "18%", left: "25%" };
+        case "playroom": return { top: "18%", left: "68%" };
+        case "kitchen": return { top: "58%", left: "25%" };
+      }
+    }
+    switch (girlRoom) {
+      case "bedroom": return { top: "22%", left: "25%" };
+      case "playroom": return { top: "22%", left: "68%" };
+      case "kitchen": return { top: "62%", left: "25%" };
+      default: return { top: "78%", left: "50%" };
+    }
+  };
+
+  const girlPos = getGirlPosition();
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center p-6"
+      className="min-h-screen flex flex-col items-center relative overflow-hidden"
       style={{
-        background: "linear-gradient(180deg, #FFECD2 0%, #FCB69F 100%)",
+        background: "linear-gradient(180deg, #87CEEB 0%, #b5e8ff 35%, #a8e6cf 65%, #90EE90 100%)",
       }}
     >
+      {/* Sky decorations */}
+      <div className="absolute top-4 right-6 text-6xl animate-float" style={{ filter: "drop-shadow(0 0 10px rgba(255,200,0,0.4))" }}>&#9728;&#65039;</div>
+      <div className="absolute top-8 left-6 text-4xl animate-float" style={{ animationDelay: "0.5s", opacity: 0.6 }}>&#9729;&#65039;</div>
+      <div className="absolute top-12 left-1/3 text-3xl animate-float" style={{ animationDelay: "1.2s", opacity: 0.5 }}>&#9729;&#65039;</div>
+      <div className="absolute top-20 right-1/4 text-2xl animate-float" style={{ animationDelay: "0.3s" }}>&#128038;</div>
+
+      {/* Title */}
       <h1
-        className="text-4xl font-black mt-4 mb-2 text-center"
-        style={{ color: "#e17055" }}
+        className="text-3xl font-black mt-3 mb-1 text-center relative z-10 animate-rainbow"
+        style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.15)" }}
       >
-        &#127968; Avery&apos;s House
+        Avery&apos;s House
       </h1>
-      <p className="text-xl font-bold mb-8 text-center" style={{ color: "#d63031" }}>
-        Pick a room to explore!
+      <p className="text-base font-bold mb-2 text-center relative z-10" style={{ color: "#e17055" }}>
+        Tap a room to explore!
       </p>
 
-      <div className="flex flex-col gap-6 w-full max-w-md">
-        {rooms.map((room, i) => (
-          <button
-            key={room.screen}
-            className="room-btn animate-slide-up w-full"
-            style={{
-              background: room.gradient,
-              color: "#fff",
-              animationDelay: `${i * 0.15}s`,
-              animationFillMode: "both",
-              flexDirection: "row",
-              gap: 16,
-              justifyContent: "flex-start",
-              paddingLeft: 24,
-            }}
-            onClick={() => onNavigate(room.screen)}
-          >
-            <span className="text-5xl" dangerouslySetInnerHTML={{ __html: room.emoji }} />
-            <div className="text-left">
-              <div className="text-2xl">{room.label}</div>
-              <div className="text-base font-semibold opacity-90">{room.subtitle}</div>
+      {/* Dollhouse container */}
+      <div
+        className="relative w-full max-w-sm mx-auto animate-bounce-in"
+        style={{ aspectRatio: "1 / 1.3" }}
+      >
+        {/* House frame / roof */}
+        <div
+          className="absolute"
+          style={{
+            top: 0,
+            left: "5%",
+            width: "90%",
+            height: "12%",
+            background: "linear-gradient(135deg, #e74c3c, #c0392b)",
+            clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
+            zIndex: 5,
+            filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))",
+          }}
+        />
+        {/* Chimney */}
+        <div
+          className="absolute"
+          style={{
+            top: "1%",
+            right: "18%",
+            width: "12%",
+            height: "8%",
+            background: "#c0392b",
+            borderRadius: "4px 4px 0 0",
+            zIndex: 4,
+          }}
+        >
+          <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-xl animate-steam">&#9729;&#65039;</div>
+        </div>
+
+        {/* House body */}
+        <div
+          className="absolute"
+          style={{
+            top: "11%",
+            left: "5%",
+            width: "90%",
+            height: "75%",
+            background: "#fdf2e9",
+            border: "6px solid #d4a574",
+            borderRadius: "0 0 16px 16px",
+            boxShadow: "0 8px 30px rgba(0,0,0,0.15), inset 0 0 20px rgba(0,0,0,0.03)",
+            zIndex: 3,
+            overflow: "hidden",
+          }}
+        >
+          {/* Room grid - 2x2 with bottom-right being garden/yard */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", width: "100%", height: "100%", gap: 0 }}>
+            {/* Bedroom - top left */}
+            <button
+              onClick={() => handleRoomTap("bedroom")}
+              style={{
+                background: rooms[0].bgColor,
+                border: `3px solid ${rooms[0].borderColor}`,
+                borderRadius: 0,
+                cursor: "pointer",
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 2,
+                transition: "transform 0.2s, box-shadow 0.2s",
+                padding: 4,
+              }}
+              className={`dollhouse-room ${targetRoom === "bedroom" ? "animate-sparkle" : ""}`}
+            >
+              <div className="text-3xl" style={{ lineHeight: 1 }}>&#128716;</div>
+              <div style={{ fontSize: "0.6rem", fontWeight: 800, color: rooms[0].borderColor }}>Bedroom</div>
+              {/* Room furniture */}
+              <div className="absolute top-1 left-1 text-xs">&#128059;&#8205;&#10052;&#65039;</div>
+              <div className="absolute top-1 right-1 text-xs">&#128161;</div>
+              <div className="absolute bottom-1 right-1 text-xs">&#128218;</div>
+            </button>
+
+            {/* Playroom - top right */}
+            <button
+              onClick={() => handleRoomTap("playroom")}
+              style={{
+                background: rooms[1].bgColor,
+                border: `3px solid ${rooms[1].borderColor}`,
+                borderRadius: 0,
+                cursor: "pointer",
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 2,
+                transition: "transform 0.2s, box-shadow 0.2s",
+                padding: 4,
+              }}
+              className={`dollhouse-room ${targetRoom === "playroom" ? "animate-sparkle" : ""}`}
+            >
+              <div className="text-3xl" style={{ lineHeight: 1 }}>&#129513;</div>
+              <div style={{ fontSize: "0.6rem", fontWeight: 800, color: rooms[1].borderColor }}>Playroom</div>
+              <div className="absolute top-1 left-1 text-xs">&#127912;</div>
+              <div className="absolute top-1 right-1 text-xs">&#129513;</div>
+              <div className="absolute bottom-1 left-1 text-xs">&#127922;</div>
+            </button>
+
+            {/* Kitchen - bottom left */}
+            <button
+              onClick={() => handleRoomTap("kitchen")}
+              style={{
+                background: rooms[2].bgColor,
+                border: `3px solid ${rooms[2].borderColor}`,
+                borderRadius: 0,
+                cursor: "pointer",
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 2,
+                transition: "transform 0.2s, box-shadow 0.2s",
+                padding: 4,
+              }}
+              className={`dollhouse-room ${targetRoom === "kitchen" ? "animate-sparkle" : ""}`}
+            >
+              <div className="text-3xl" style={{ lineHeight: 1 }}>&#129379;</div>
+              <div style={{ fontSize: "0.6rem", fontWeight: 800, color: rooms[2].borderColor }}>Kitchen</div>
+              <div className="absolute top-1 left-1 text-xs">&#127858;</div>
+              <div className="absolute top-1 right-1 text-xs">&#129387;</div>
+              <div className="absolute bottom-1 right-1 text-xs">&#127829;</div>
+            </button>
+
+            {/* Living room / Door area - bottom right */}
+            <div
+              style={{
+                background: "#fce4ec",
+                border: "3px solid #f48fb1",
+                borderRadius: 0,
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 2,
+              }}
+            >
+              <div className="text-2xl">&#128010;</div>
+              <div style={{ fontSize: "0.6rem", fontWeight: 800, color: "#f48fb1" }}>Living Room</div>
+              {/* Door */}
+              <div
+                className="absolute bottom-0 left-1/2 -translate-x-1/2"
+                style={{
+                  width: "35%",
+                  height: "40%",
+                  background: "#8d6e63",
+                  borderRadius: "8px 8px 0 0",
+                  border: "2px solid #6d4c41",
+                }}
+              >
+                <div className="absolute top-1/2 right-1 w-1.5 h-1.5 rounded-full" style={{ background: "#ffd93d" }} />
+              </div>
+              <div className="absolute top-1 left-1 text-xs">&#128250;</div>
+              <div className="absolute top-1 right-1 text-xs">&#127796;</div>
             </div>
+          </div>
+        </div>
+
+        {/* Girl character */}
+        <div
+          className="absolute z-20"
+          style={{
+            top: girlPos.top,
+            left: girlPos.left,
+            transform: "translate(-50%, -50%)",
+            transition: walking ? "all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)" : "all 0.3s ease",
+            fontSize: "2.2rem",
+            filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
+          }}
+        >
+          <div className={walking ? "animate-wiggle" : "animate-float"}>
+            &#128103;
+          </div>
+          {/* Speech bubble when idle */}
+          {!walking && girlRoom === "outside" && (
+            <div
+              className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap animate-bounce-in"
+              style={{
+                background: "white",
+                borderRadius: 12,
+                padding: "2px 8px",
+                fontSize: "0.6rem",
+                fontWeight: 800,
+                color: "#e17055",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              }}
+            >
+              Tap a room!
+            </div>
+          )}
+        </div>
+
+        {/* Sparkle trail */}
+        {sparkles.map((s, i) => (
+          <div
+            key={i}
+            className="absolute animate-pop z-30"
+            style={{
+              top: `${30 + i * 15}%`,
+              left: `${35 + i * 10}%`,
+              fontSize: "1.2rem",
+              animationDelay: `${i * 0.15}s`,
+              opacity: 0.8,
+            }}
+            dangerouslySetInnerHTML={{ __html: s }}
+          />
+        ))}
+
+        {/* Foundation / ground */}
+        <div
+          className="absolute"
+          style={{
+            bottom: "2%",
+            left: "2%",
+            width: "96%",
+            height: "8%",
+            background: "linear-gradient(180deg, #90EE90, #6BCB77)",
+            borderRadius: "0 0 12px 12px",
+            zIndex: 2,
+          }}
+        />
+      </div>
+
+      {/* Garden area below house */}
+      <div className="flex gap-2 mt-1 text-2xl relative z-10">
+        <span className="animate-float" style={{ animationDelay: "0s" }}>&#127803;</span>
+        <span className="animate-float" style={{ animationDelay: "0.3s" }}>&#127799;</span>
+        <span className="animate-float" style={{ animationDelay: "0.6s" }}>&#127804;</span>
+        <span className="animate-float" style={{ animationDelay: "0.9s" }}>&#127800;</span>
+        <span className="animate-float" style={{ animationDelay: "1.2s" }}>&#127803;</span>
+        <span className="animate-float" style={{ animationDelay: "1.5s" }}>&#129419;</span>
+      </div>
+
+      {/* Room labels as big tap targets below the house */}
+      <div className="w-full max-w-sm px-4 mt-3 flex flex-col gap-2 relative z-10">
+        {rooms.map((room) => (
+          <button
+            key={room.id}
+            onClick={() => handleRoomTap(room.id)}
+            disabled={walking}
+            className="animate-slide-up"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              padding: "10px 16px",
+              background: room.bgColor,
+              border: `3px solid ${room.borderColor}`,
+              borderRadius: 16,
+              cursor: walking ? "wait" : "pointer",
+              opacity: walking && targetRoom !== room.id ? 0.6 : 1,
+              transition: "all 0.2s ease",
+              boxShadow: targetRoom === room.id ? `0 0 15px ${room.borderColor}80` : "0 2px 8px rgba(0,0,0,0.1)",
+              transform: targetRoom === room.id ? "scale(1.03)" : "scale(1)",
+            }}
+          >
+            <span className="text-3xl" dangerouslySetInnerHTML={{ __html: room.emoji }} />
+            <div className="text-left">
+              <div className="text-lg font-black" style={{ color: room.borderColor }}>{room.label}</div>
+            </div>
+            <span className="ml-auto text-xl" style={{ color: room.borderColor }}>&#10145;&#65039;</span>
           </button>
         ))}
       </div>
