@@ -1,6 +1,6 @@
 # Fourth Trimester
 
-A calm, daily **15-minute postpartum recovery** companion. Every exercise is
+A calm, daily **10–15 minute postpartum recovery** companion. Every exercise is
 demonstrated by a short AI-generated instructional video so you can see
 exactly what the movement looks like — no ambiguity.
 
@@ -18,8 +18,8 @@ A 12-week, 3-phase program based on standard postpartum rehab guidance
 | 2 | 6–12 | Low-impact strength, stability, unilateral work |
 | 3 | 12+  | Progressive strength, return to impact (gated by hop test) |
 
-Each daily session is ~15 minutes and rotates through a curated pool of
-bodyweight movements (see [`src/data/exercises.ts`](src/data/exercises.ts) and
+Each daily session is ~10–15 minutes (shorter in Phase 1, longer as you
+progress) and rotates through a curated pool of bodyweight movements (see [`src/data/exercises.ts`](src/data/exercises.ts) and
 [`src/data/program.ts`](src/data/program.ts)).
 
 ## Safety features

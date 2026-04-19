@@ -12,11 +12,13 @@ export function Settings() {
       </header>
 
       <section className="card p-5 space-y-4">
-        <Row label="Name">
+        <Row label="Name" htmlFor="settings-name">
           <input
+            id="settings-name"
             value={state.name}
+            maxLength={40}
             onChange={(e) => useProgress.getState().setName(e.target.value)}
-            className="rounded-xl border border-ink-200 bg-white px-3 py-1.5 text-sm"
+            className="rounded-xl border border-ink-200 bg-white px-3 py-1.5 text-sm focus:border-sage-400 focus:outline-none focus:ring-2 focus:ring-sage-300"
           />
         </Row>
         <Row label="Cleared by provider">
@@ -70,13 +72,20 @@ export function Settings() {
 function Row({
   label,
   children,
+  htmlFor,
 }: {
   label: string;
   children: React.ReactNode;
+  htmlFor?: string;
 }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <div className="text-sm font-medium text-ink-700">{label}</div>
+      <label
+        htmlFor={htmlFor}
+        className="text-sm font-medium text-ink-700"
+      >
+        {label}
+      </label>
       <div>{children}</div>
     </div>
   );

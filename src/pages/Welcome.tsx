@@ -39,7 +39,7 @@ export function Welcome() {
             Fourth Trimester
           </div>
           <div className="text-sm text-ink-500">
-            A calm, daily 15-minute postpartum companion.
+            A calm, daily 10–15 minute postpartum companion.
           </div>
         </div>
       </div>
@@ -67,6 +67,8 @@ export function Welcome() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Alex"
+            maxLength={40}
+            autoComplete="given-name"
             className="mt-1 block w-full rounded-xl border border-ink-200 bg-white px-3 py-2 text-base shadow-sm focus:border-sage-400 focus:outline-none focus:ring-2 focus:ring-sage-300"
           />
         </label>
@@ -79,9 +81,10 @@ export function Welcome() {
             <input
               type="range"
               min={0}
-              max={26}
+              max={52}
               value={weeks}
               onChange={(e) => setWeeks(Number(e.target.value))}
+              aria-label="Weeks postpartum"
               className="flex-1 accent-sage-700"
             />
             <span className="w-16 text-right font-display text-lg text-sage-900">

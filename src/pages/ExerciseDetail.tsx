@@ -86,6 +86,15 @@ export function ExerciseDetail() {
             this one.
           </p>
         )}
+        {exercise.requiresHopTest && (
+          <p className="mt-3 text-sm text-ink-600">
+            This one lives in Phase 3 and unlocks after you pass the{" "}
+            <Link to="/hop-test" className="underline">
+              pelvic-floor hop test
+            </Link>
+            .
+          </p>
+        )}
       </section>
     </div>
   );

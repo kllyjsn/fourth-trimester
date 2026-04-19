@@ -57,7 +57,7 @@ export function Session() {
   useEffect(() => {
     if (paused || done || !current) return;
     const id = window.setInterval(() => {
-      setRemaining((r) => r - 1);
+      setRemaining((r) => Math.max(0, r - 1));
     }, 1000);
     return () => window.clearInterval(id);
   }, [paused, done, current, stepIdx]);
@@ -103,6 +103,16 @@ export function Session() {
     stepIdx + 1 < steps.length
       ? `Next: ${steps[stepIdx + 1].exercise.name}${steps[stepIdx + 1].side !== "both" ? ` (${steps[stepIdx + 1].side})` : ""}`
       : "Last one — almost done!";
+  const progressPct = Math.min(
+    100,
+    Math.max(0, ((stepIdx + (1 - remaining / Math.max(1, current.durationSec))) / steps.length) * 100),
+  );
+
+  const tryEnd = () => {
+    const started = stepIdx > 0 || remaining < steps[0].durationSec;
+    if (started && !confirm("End session? Your progress for today won't be saved.")) return;
+    nav("/");
+  };
 
   const sideLabel =
     current.side === "both" ? "" : current.side === "right" ? "Right side" : "Left side";
@@ -111,7 +121,7 @@ export function Session() {
     <div className="fixed inset-0 z-20 flex flex-col bg-cream-50">
       <div className="flex items-center justify-between px-5 py-4">
         <button
-          onClick={() => nav("/")}
+          onClick={tryEnd}
           className="btn-ghost"
           aria-label="End session"
         >
@@ -120,6 +130,18 @@ export function Session() {
         <div className="text-sm text-ink-500">
           {stepIdx + 1} / {steps.length}
         </div>
+      </div>
+      <div
+        className="mx-5 h-1 overflow-hidden rounded-full bg-sage-100"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(progressPct)}
+      >
+        <div
+          className="h-full bg-sage-600 transition-[width] duration-500 ease-linear"
+          style={{ width: `${progressPct}%` }}
+        />
       </div>
       <div className="relative mx-auto w-full max-w-3xl flex-1 px-5 pb-4">
         <div className="relative h-[55dvh] w-full overflow-hidden rounded-3xl">

@@ -55,6 +55,8 @@ export function VideoPlayer({
           muted
           playsInline
           loop
+          preload="metadata"
+          aria-label={`Silent demonstration of ${exercise.name}`}
           onError={() => setFailed(true)}
         />
       ) : (
@@ -73,9 +75,13 @@ export function VideoPlayer({
 
 function Placeholder({ exercise }: { exercise: Exercise }) {
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-sage-700 to-sage-900 p-6 text-center text-white">
+    <div
+      role="img"
+      aria-label={`${exercise.name} — demo video coming soon`}
+      className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-sage-700 to-sage-900 p-6 text-center text-white"
+    >
       <div className="text-xs uppercase tracking-widest text-sage-200">
-        Demo video rendering…
+        Demo coming soon
       </div>
       <div className="font-display text-3xl">{exercise.name}</div>
       <div className="max-w-md text-sm text-sage-100/90">

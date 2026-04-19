@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Flame, Play, Clock, ChevronRight } from "lucide-react";
+import { Flame, Play, Clock, ChevronRight, Sparkles } from "lucide-react";
 import { computeStreak, computeTodayIndex, useProgress } from "../store/progress";
 import { getSessionForDay } from "../data/program";
 import { VideoPlayer } from "../components/VideoPlayer";
@@ -28,16 +28,28 @@ export function Today() {
             <p className="mt-2 text-ink-600">
               {plan.isRestDay
                 ? "Breath, a gentle stretch, and a short walk. Nothing strenuous today."
-                : "A 15-minute flow tuned to where you are. You can skip or hold any exercise at any time."}
+                : `A ${plan.totalMinutes}-minute flow tuned to where you are. You can skip or hold any exercise at any time.`}
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-ink-600">
               <span className="inline-flex items-center gap-1">
                 <Clock className="h-4 w-4" /> {plan.totalMinutes} min
               </span>
               <span className="inline-flex items-center gap-1">
-                <Flame className="h-4 w-4 text-cream-600" /> {streak}-day streak
+                {streak > 0 ? (
+                  <>
+                    <Flame className="h-4 w-4 text-cream-600" />
+                    {streak}-day streak
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 text-sage-500" />
+                    Start your streak today
+                  </>
+                )}
               </span>
-              <span>Day {dayIndex + 1}</span>
+              <span>
+                Week {plan.weekIndex + 1} · Day {dayIndex + 1}
+              </span>
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link to="/session" className="btn-primary">

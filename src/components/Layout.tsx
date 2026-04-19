@@ -47,7 +47,10 @@ export function Layout() {
       <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-6">
         <Outlet />
       </main>
-      <nav className="sticky bottom-0 z-10 border-t border-ink-100/70 bg-cream-50/90 backdrop-blur sm:hidden">
+      <nav
+        className="sticky bottom-0 z-10 border-t border-ink-100/70 bg-cream-50/90 backdrop-blur sm:hidden"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
         <div className="mx-auto flex max-w-3xl items-stretch justify-between px-2">
           {NAV.map((n) => (
             <NavLink
@@ -67,7 +70,7 @@ export function Layout() {
           ))}
         </div>
       </nav>
-      <footer className="mx-auto w-full max-w-3xl px-5 pb-6 pt-2 text-center text-xs text-ink-400">
+      <footer className="mx-auto w-full max-w-3xl px-5 pb-6 pt-2 text-center text-xs text-ink-400 sm:pb-6">
         This app is informational only — always defer to your OB, midwife, or
         pelvic-floor PT.
       </footer>
