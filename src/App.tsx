@@ -7,18 +7,76 @@ type Screen =
   | "kitchen"
   | "playroom"
   | "bedroom"
+  | "bathroom"
   | "pizza"
   | "icecream"
   | "soup"
   | "shapes"
   | "colors"
   | "teaparty"
-  | "blocks";
+  | "blocks"
+  | "potty";
+
+// --- Cheering sound via Web Audio API ---
+function playCheerSound() {
+  try {
+    const ctx = new AudioContext();
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.15 + 0.4);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + i * 0.15);
+      osc.stop(ctx.currentTime + i * 0.15 + 0.4);
+    });
+    setTimeout(() => ctx.close(), 2000);
+  } catch (_) { /* audio not available */ }
+}
+
+// --- Confetti pieces ---
+const CONFETTI_COLORS = ["#ff6b6b", "#ffd93d", "#6bcb77", "#4d96ff", "#9b59b6", "#ff9ff3", "#ffa502", "#1dd1a1"];
+
+function ConfettiOverlay() {
+  const pieces = Array.from({ length: 40 }, (_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+    delay: Math.random() * 1.5,
+    size: 6 + Math.random() * 8,
+    duration: 2 + Math.random() * 2,
+  }));
+
+  return (
+    <>
+      {pieces.map((p) => (
+        <div
+          key={p.id}
+          className="confetti-piece"
+          style={{
+            left: `${p.left}%`,
+            background: p.color,
+            width: p.size,
+            height: p.size * (0.5 + Math.random() * 0.5),
+            animationDelay: `${p.delay}s`,
+            animationDuration: `${p.duration}s, ${p.duration * 0.5}s`,
+            borderRadius: Math.random() > 0.5 ? "50%" : "2px",
+          }}
+        />
+      ))}
+    </>
+  );
+}
 
 // --- Celebration overlay ---
 function Celebration({ message, onDone }: { message: string; onDone: () => void }) {
   useEffect(() => {
-    const t = setTimeout(onDone, 3000);
+    playCheerSound();
+    const t = setTimeout(onDone, 4000);
     return () => clearTimeout(t);
   }, [onDone]);
 
@@ -28,7 +86,8 @@ function Celebration({ message, onDone }: { message: string; onDone: () => void 
       style={{ background: "rgba(0,0,0,0.4)" }}
       onClick={onDone}
     >
-      <div className="animate-bounce-in bg-white rounded-3xl p-8 mx-4 text-center shadow-2xl max-w-sm">
+      <ConfettiOverlay />
+      <div className="animate-bounce-in bg-white rounded-3xl p-8 mx-4 text-center shadow-2xl max-w-sm relative z-10">
         <div className="text-6xl mb-4">
           <span className="star">&#11088;</span>
           <span className="star">&#11088;</span>
@@ -78,35 +137,46 @@ function StarsDisplay({ count }: { count: number }) {
 function WelcomeScreen({ onEnter }: { onEnter: () => void }) {
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center p-6"
+      className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden"
       style={{
-        background: "linear-gradient(180deg, #87CEEB 0%, #98FB98 60%, #90EE90 100%)",
+        background: "linear-gradient(180deg, #87CEEB 0%, #b5e8ff 40%, #98FB98 70%, #90EE90 100%)",
       }}
     >
+      {/* Clouds */}
+      <div className="absolute top-8 left-8 text-5xl animate-float" style={{ animationDelay: "0s", opacity: 0.7 }}>&#9729;&#65039;</div>
+      <div className="absolute top-16 right-16 text-4xl animate-float" style={{ animationDelay: "1.5s", opacity: 0.6 }}>&#9729;&#65039;</div>
+      <div className="absolute top-6 left-1/3 text-3xl animate-float" style={{ animationDelay: "0.8s", opacity: 0.5 }}>&#9729;&#65039;</div>
+
       {/* Sun */}
       <div
-        className="animate-float text-8xl mb-2"
-        style={{ position: "absolute", top: 30, right: 40 }}
+        className="animate-float text-8xl"
+        style={{ position: "absolute", top: 20, right: 30, filter: "drop-shadow(0 0 15px rgba(255,200,0,0.5))" }}
       >
         &#9728;&#65039;
       </div>
 
-      {/* House */}
-      <div className="animate-bounce-in mb-6">
+      {/* Birds */}
+      <div className="absolute top-24 left-1/4 text-2xl animate-float" style={{ animationDelay: "0.3s" }}>&#128038;</div>
+      <div className="absolute top-32 right-1/4 text-xl animate-float" style={{ animationDelay: "1.2s" }}>&#128038;</div>
+
+      {/* Dollhouse with girl */}
+      <div className="animate-bounce-in mb-4 relative">
         <div className="text-center">
-          <div className="text-9xl">&#127968;</div>
+          <div style={{ fontSize: "8rem", lineHeight: 1, filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.2))" }}>&#127968;</div>
         </div>
+        {/* Girl standing in front of house */}
+        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 animate-wiggle" style={{ fontSize: "3.5rem" }}>&#128103;</div>
       </div>
 
       <h1
-        className="text-5xl font-black mb-3 text-center animate-rainbow"
+        className="text-5xl font-black mb-2 text-center animate-rainbow"
         style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.15)" }}
       >
         Avery&apos;s House
       </h1>
 
-      <p className="text-2xl font-bold text-white mb-8 text-center" style={{ textShadow: "1px 1px 3px rgba(0,0,0,0.2)" }}>
-        Tap to come inside!
+      <p className="text-xl font-bold text-white mb-6 text-center" style={{ textShadow: "1px 1px 3px rgba(0,0,0,0.2)" }}>
+        Help Avery explore her dollhouse!
       </p>
 
       <button
@@ -116,73 +186,432 @@ function WelcomeScreen({ onEnter }: { onEnter: () => void }) {
           background: "linear-gradient(135deg, #FF6B6B, #FF8E8E)",
           color: "#fff",
           fontSize: "1.6rem",
-          minWidth: 200,
+          minWidth: 220,
           minHeight: 80,
+          boxShadow: "0 6px 20px rgba(255,107,107,0.4)",
         }}
       >
         <span className="text-4xl">&#128075;</span>
-        Let&apos;s Play!
+        Come Inside!
       </button>
 
-      {/* Decorative elements */}
-      <div className="flex gap-4 mt-8 text-4xl">
+      {/* Garden flowers */}
+      <div className="flex gap-3 mt-6 text-3xl">
         <span className="animate-float" style={{ animationDelay: "0s" }}>&#127803;</span>
-        <span className="animate-float" style={{ animationDelay: "0.5s" }}>&#127799;</span>
-        <span className="animate-float" style={{ animationDelay: "1s" }}>&#127804;</span>
-        <span className="animate-float" style={{ animationDelay: "1.5s" }}>&#127800;</span>
-        <span className="animate-float" style={{ animationDelay: "2s" }}>&#127803;</span>
+        <span className="animate-float" style={{ animationDelay: "0.4s" }}>&#127799;</span>
+        <span className="animate-float" style={{ animationDelay: "0.8s" }}>&#127804;</span>
+        <span className="animate-float" style={{ animationDelay: "1.2s" }}>&#127800;</span>
+        <span className="animate-float" style={{ animationDelay: "1.6s" }}>&#127803;</span>
+        <span className="animate-float" style={{ animationDelay: "2.0s" }}>&#127799;</span>
       </div>
+
+      {/* Butterfly and ladybug */}
+      <div className="absolute bottom-20 left-10 text-3xl animate-float" style={{ animationDelay: "0.5s" }}>&#129419;</div>
+      <div className="absolute bottom-24 right-12 text-2xl animate-float" style={{ animationDelay: "1.8s" }}>&#128030;</div>
     </div>
   );
 }
 
-// --- House screen ---
+// --- Dollhouse screen with walking girl ---
+type RoomId = "kitchen" | "playroom" | "bedroom" | "bathroom";
+
 function HouseScreen({ onNavigate }: { onNavigate: (screen: Screen) => void }) {
-  const rooms = [
-    { screen: "kitchen" as Screen, emoji: "&#129379;", label: "Kitchen", subtitle: "Cook yummy food!", color: "#FF6B6B", gradient: "linear-gradient(135deg, #FF6B6B, #ee5a24)" },
-    { screen: "playroom" as Screen, emoji: "&#129513;", label: "Playroom", subtitle: "Play with toys!", color: "#4ECDC4", gradient: "linear-gradient(135deg, #4ECDC4, #44bd9e)" },
-    { screen: "bedroom" as Screen, emoji: "&#128716;", label: "Bedroom", subtitle: "Cozy and fun!", color: "#A29BFE", gradient: "linear-gradient(135deg, #A29BFE, #6c5ce7)" },
+  const [girlRoom, setGirlRoom] = useState<RoomId | "outside">("outside");
+  const [walking, setWalking] = useState(false);
+  const [targetRoom, setTargetRoom] = useState<RoomId | null>(null);
+  const [sparkles, setSparkles] = useState<string[]>([]);
+  const walkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => { if (walkTimerRef.current) clearTimeout(walkTimerRef.current); };
+  }, []);
+
+  const rooms: { id: RoomId; screen: Screen; emoji: string; label: string; bgColor: string; borderColor: string; row: number; col: number; items: string[] }[] = [
+    { id: "bedroom", screen: "bedroom", emoji: "&#128716;", label: "Bedroom", bgColor: "#e8daef", borderColor: "#af7ac5", row: 0, col: 0, items: ["&#128059;&#8205;&#10052;&#65039;", "&#128161;"] },
+    { id: "playroom", screen: "playroom", emoji: "&#129513;", label: "Playroom", bgColor: "#d5f5e3", borderColor: "#58d68d", row: 0, col: 1, items: ["&#127912;", "&#129513;"] },
+    { id: "kitchen", screen: "kitchen", emoji: "&#129379;", label: "Kitchen", bgColor: "#fdebd0", borderColor: "#f0b27a", row: 1, col: 0, items: ["&#127858;", "&#129387;"] },
+    { id: "bathroom", screen: "bathroom", emoji: "&#128701;", label: "Bathroom", bgColor: "#e3f2fd", borderColor: "#64b5f6", row: 1, col: 1, items: ["&#128701;", "&#129532;"] },
   ];
+
+  const handleRoomTap = (roomId: RoomId) => {
+    if (walking) return;
+    if (walkTimerRef.current) { clearTimeout(walkTimerRef.current); walkTimerRef.current = null; }
+    setWalking(true);
+    setTargetRoom(roomId);
+
+    // Add sparkle trail
+    setSparkles(["&#10024;", "&#10024;", "&#10024;"]);
+    setTimeout(() => setSparkles([]), 600);
+
+    // Girl walks to room
+    walkTimerRef.current = setTimeout(() => {
+      setGirlRoom(roomId);
+      setWalking(false);
+      setTargetRoom(null);
+
+      // Brief pause then enter room
+      walkTimerRef.current = setTimeout(() => {
+        const room = rooms.find(r => r.id === roomId);
+        if (room) onNavigate(room.screen);
+      }, 500);
+    }, 800);
+  };
+
+  // Girl position based on current room
+  const getGirlPosition = (): { top: string; left: string } => {
+    if (walking && targetRoom) {
+      // Move toward target room
+      switch (targetRoom) {
+        case "bedroom": return { top: "18%", left: "25%" };
+        case "playroom": return { top: "18%", left: "68%" };
+        case "kitchen": return { top: "58%", left: "25%" };
+        case "bathroom": return { top: "58%", left: "68%" };
+      }
+    }
+    switch (girlRoom) {
+      case "bedroom": return { top: "22%", left: "25%" };
+      case "playroom": return { top: "22%", left: "68%" };
+      case "kitchen": return { top: "62%", left: "25%" };
+      case "bathroom": return { top: "62%", left: "68%" };
+      default: return { top: "78%", left: "50%" };
+    }
+  };
+
+  const girlPos = getGirlPosition();
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center p-6"
+      className="min-h-screen flex flex-col items-center relative overflow-hidden"
       style={{
-        background: "linear-gradient(180deg, #FFECD2 0%, #FCB69F 100%)",
+        background: "linear-gradient(180deg, #87CEEB 0%, #b5e8ff 35%, #a8e6cf 65%, #90EE90 100%)",
       }}
     >
+      {/* Sky decorations */}
+      <div className="absolute top-4 right-6 text-6xl animate-float" style={{ filter: "drop-shadow(0 0 10px rgba(255,200,0,0.4))" }}>&#9728;&#65039;</div>
+      <div className="absolute top-8 left-6 text-4xl animate-float" style={{ animationDelay: "0.5s", opacity: 0.6 }}>&#9729;&#65039;</div>
+      <div className="absolute top-12 left-1/3 text-3xl animate-float" style={{ animationDelay: "1.2s", opacity: 0.5 }}>&#9729;&#65039;</div>
+      <div className="absolute top-20 right-1/4 text-2xl animate-float" style={{ animationDelay: "0.3s" }}>&#128038;</div>
+
+      {/* Title */}
       <h1
-        className="text-4xl font-black mt-4 mb-2 text-center"
-        style={{ color: "#e17055" }}
+        className="text-3xl font-black mt-3 mb-1 text-center relative z-10 animate-rainbow"
+        style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.15)" }}
       >
-        &#127968; Avery&apos;s House
+        Avery&apos;s House
       </h1>
-      <p className="text-xl font-bold mb-8 text-center" style={{ color: "#d63031" }}>
-        Pick a room to explore!
+      <p className="text-base font-bold mb-2 text-center relative z-10" style={{ color: "#e17055" }}>
+        Tap a room to explore!
       </p>
 
-      <div className="flex flex-col gap-6 w-full max-w-md">
-        {rooms.map((room, i) => (
-          <button
-            key={room.screen}
-            className="room-btn animate-slide-up w-full"
-            style={{
-              background: room.gradient,
-              color: "#fff",
-              animationDelay: `${i * 0.15}s`,
-              animationFillMode: "both",
-              flexDirection: "row",
-              gap: 16,
-              justifyContent: "flex-start",
-              paddingLeft: 24,
-            }}
-            onClick={() => onNavigate(room.screen)}
-          >
-            <span className="text-5xl" dangerouslySetInnerHTML={{ __html: room.emoji }} />
-            <div className="text-left">
-              <div className="text-2xl">{room.label}</div>
-              <div className="text-base font-semibold opacity-90">{room.subtitle}</div>
+      {/* Dollhouse container */}
+      <div
+        className="relative w-full max-w-sm mx-auto animate-bounce-in"
+        style={{ aspectRatio: "1 / 1.3" }}
+      >
+        {/* House frame / roof */}
+        <div
+          className="absolute"
+          style={{
+            top: 0,
+            left: "5%",
+            width: "90%",
+            height: "12%",
+            background: "linear-gradient(135deg, #e74c3c, #c0392b)",
+            clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
+            zIndex: 5,
+            filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))",
+          }}
+        />
+        {/* Chimney */}
+        <div
+          className="absolute"
+          style={{
+            top: "1%",
+            right: "18%",
+            width: "12%",
+            height: "8%",
+            background: "#c0392b",
+            borderRadius: "4px 4px 0 0",
+            zIndex: 4,
+          }}
+        >
+          <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-xl animate-steam">&#9729;&#65039;</div>
+        </div>
+
+        {/* House body */}
+        <div
+          className="absolute"
+          style={{
+            top: "11%",
+            left: "5%",
+            width: "90%",
+            height: "75%",
+            background: "#fdf2e9",
+            border: "6px solid #d4a574",
+            borderRadius: "0 0 16px 16px",
+            boxShadow: "0 8px 30px rgba(0,0,0,0.15), inset 0 0 20px rgba(0,0,0,0.03)",
+            zIndex: 3,
+            overflow: "hidden",
+          }}
+        >
+          {/* Room grid - 2x2 */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", width: "100%", height: "100%", gap: 0, position: "relative" }}>
+            {/* Bedroom - top left */}
+            <button
+              onClick={() => handleRoomTap("bedroom")}
+              style={{
+                background: rooms[0].bgColor,
+                border: `3px solid ${rooms[0].borderColor}`,
+                borderRadius: 0,
+                cursor: "pointer",
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 2,
+                transition: "transform 0.2s, box-shadow 0.2s",
+                padding: 4,
+              }}
+              className={`dollhouse-room ${targetRoom === "bedroom" ? "animate-sparkle" : ""}`}
+            >
+              {/* Bed furniture */}
+              <div className="absolute top-0.5 left-0.5" style={{ fontSize: "1.4rem" }}>&#128719;&#65039;</div>
+              <div className="text-2xl" style={{ lineHeight: 1 }}>&#128716;</div>
+              <div style={{ fontSize: "0.55rem", fontWeight: 800, color: rooms[0].borderColor }}>Bedroom</div>
+              <div className="absolute top-0.5 right-0.5 text-xs">&#128161;</div>
+              <div className="absolute bottom-0.5 left-0.5 text-xs">&#128059;&#8205;&#10052;&#65039;</div>
+              <div className="absolute bottom-0.5 right-0.5 text-xs">&#128218;</div>
+            </button>
+
+            {/* Playroom - top right */}
+            <button
+              onClick={() => handleRoomTap("playroom")}
+              style={{
+                background: rooms[1].bgColor,
+                border: `3px solid ${rooms[1].borderColor}`,
+                borderRadius: 0,
+                cursor: "pointer",
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 2,
+                transition: "transform 0.2s, box-shadow 0.2s",
+                padding: 4,
+              }}
+              className={`dollhouse-room ${targetRoom === "playroom" ? "animate-sparkle" : ""}`}
+            >
+              <div className="text-2xl" style={{ lineHeight: 1 }}>&#129513;</div>
+              <div style={{ fontSize: "0.55rem", fontWeight: 800, color: rooms[1].borderColor }}>Playroom</div>
+              <div className="absolute top-0.5 left-0.5 text-xs">&#127912;</div>
+              <div className="absolute top-0.5 right-0.5 text-xs">&#129513;</div>
+              <div className="absolute bottom-0.5 left-0.5 text-xs">&#127922;</div>
+            </button>
+
+            {/* Kitchen - bottom left */}
+            <button
+              onClick={() => handleRoomTap("kitchen")}
+              style={{
+                background: rooms[2].bgColor,
+                border: `3px solid ${rooms[2].borderColor}`,
+                borderRadius: 0,
+                cursor: "pointer",
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 2,
+                transition: "transform 0.2s, box-shadow 0.2s",
+                padding: 4,
+              }}
+              className={`dollhouse-room ${targetRoom === "kitchen" ? "animate-sparkle" : ""}`}
+            >
+              <div className="text-2xl" style={{ lineHeight: 1 }}>&#129379;</div>
+              <div style={{ fontSize: "0.55rem", fontWeight: 800, color: rooms[2].borderColor }}>Kitchen</div>
+              <div className="absolute top-0.5 left-0.5 text-xs">&#127858;</div>
+              <div className="absolute top-0.5 right-0.5 text-xs">&#129387;</div>
+              <div className="absolute bottom-0.5 right-0.5 text-xs">&#127829;</div>
+            </button>
+
+            {/* Bathroom - bottom right */}
+            <button
+              onClick={() => handleRoomTap("bathroom")}
+              style={{
+                background: rooms[3].bgColor,
+                border: `3px solid ${rooms[3].borderColor}`,
+                borderRadius: 0,
+                cursor: "pointer",
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 2,
+                transition: "transform 0.2s, box-shadow 0.2s",
+                padding: 4,
+              }}
+              className={`dollhouse-room ${targetRoom === "bathroom" ? "animate-sparkle" : ""}`}
+            >
+              <div className="text-2xl" style={{ lineHeight: 1 }}>&#128701;</div>
+              <div style={{ fontSize: "0.55rem", fontWeight: 800, color: rooms[3].borderColor }}>Bathroom</div>
+              <div className="absolute top-0.5 left-0.5 text-xs">&#129532;</div>
+              <div className="absolute top-0.5 right-0.5 text-xs">&#128705;</div>
+              <div className="absolute bottom-0.5 right-0.5 text-xs">&#129531;</div>
+            </button>
+
+            {/* Stairs connecting top and bottom floors */}
+            <div
+              style={{
+                position: "absolute",
+                top: "35%",
+                left: "42%",
+                width: "16%",
+                height: "30%",
+                zIndex: 10,
+                pointerEvents: "none",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {/* Stair steps */}
+              <div style={{
+                width: "100%",
+                height: "100%",
+                background: "linear-gradient(180deg, #d4a574 0%, #c09060 100%)",
+                borderRadius: 4,
+                border: "2px solid #a0764a",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-evenly",
+                padding: "2px 4px",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+              }}>
+                {[0, 1, 2, 3, 4].map((step) => (
+                  <div
+                    key={step}
+                    style={{
+                      width: `${100 - step * 8}%`,
+                      height: "14%",
+                      background: step % 2 === 0 ? "#e8c9a0" : "#dbb88a",
+                      borderRadius: 2,
+                      marginLeft: `${step * 4}%`,
+                      border: "1px solid #c09060",
+                    }}
+                  />
+                ))}
+              </div>
             </div>
+          </div>
+        </div>
+
+        {/* Girl character */}
+        <div
+          className="absolute z-20"
+          style={{
+            top: girlPos.top,
+            left: girlPos.left,
+            transform: "translate(-50%, -50%)",
+            transition: walking ? "all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)" : "all 0.3s ease",
+            fontSize: "2.2rem",
+            filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
+          }}
+        >
+          <div className={walking ? "animate-wiggle" : "animate-float"}>
+            &#128103;
+          </div>
+          {/* Speech bubble when idle */}
+          {!walking && girlRoom === "outside" && (
+            <div
+              className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap animate-bounce-in"
+              style={{
+                background: "white",
+                borderRadius: 12,
+                padding: "2px 8px",
+                fontSize: "0.6rem",
+                fontWeight: 800,
+                color: "#e17055",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              }}
+            >
+              Tap a room!
+            </div>
+          )}
+        </div>
+
+        {/* Sparkle trail */}
+        {sparkles.map((s, i) => (
+          <div
+            key={i}
+            className="absolute animate-pop z-30"
+            style={{
+              top: `${30 + i * 15}%`,
+              left: `${35 + i * 10}%`,
+              fontSize: "1.2rem",
+              animationDelay: `${i * 0.15}s`,
+              opacity: 0.8,
+            }}
+            dangerouslySetInnerHTML={{ __html: s }}
+          />
+        ))}
+
+        {/* Foundation / ground */}
+        <div
+          className="absolute"
+          style={{
+            bottom: "2%",
+            left: "2%",
+            width: "96%",
+            height: "8%",
+            background: "linear-gradient(180deg, #90EE90, #6BCB77)",
+            borderRadius: "0 0 12px 12px",
+            zIndex: 2,
+          }}
+        />
+      </div>
+
+      {/* Garden area below house */}
+      <div className="flex gap-2 mt-1 text-2xl relative z-10">
+        <span className="animate-float" style={{ animationDelay: "0s" }}>&#127803;</span>
+        <span className="animate-float" style={{ animationDelay: "0.3s" }}>&#127799;</span>
+        <span className="animate-float" style={{ animationDelay: "0.6s" }}>&#127804;</span>
+        <span className="animate-float" style={{ animationDelay: "0.9s" }}>&#127800;</span>
+        <span className="animate-float" style={{ animationDelay: "1.2s" }}>&#127803;</span>
+        <span className="animate-float" style={{ animationDelay: "1.5s" }}>&#129419;</span>
+      </div>
+
+      {/* Room labels as big tap targets below the house */}
+      <div className="w-full max-w-sm px-4 mt-3 flex flex-col gap-2 relative z-10">
+        {rooms.map((room) => (
+          <button
+            key={room.id}
+            onClick={() => handleRoomTap(room.id)}
+            disabled={walking}
+            className="animate-slide-up"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              padding: "10px 16px",
+              background: room.bgColor,
+              border: `3px solid ${room.borderColor}`,
+              borderRadius: 16,
+              cursor: walking ? "wait" : "pointer",
+              opacity: walking && targetRoom !== room.id ? 0.6 : 1,
+              transition: "all 0.2s ease",
+              boxShadow: targetRoom === room.id ? `0 0 15px ${room.borderColor}80` : "0 2px 8px rgba(0,0,0,0.1)",
+              transform: targetRoom === room.id ? "scale(1.03)" : "scale(1)",
+            }}
+          >
+            <span className="text-3xl" dangerouslySetInnerHTML={{ __html: room.emoji }} />
+            <div className="text-left">
+              <div className="text-lg font-black" style={{ color: room.borderColor }}>{room.label}</div>
+            </div>
+            <span className="ml-auto text-xl" style={{ color: room.borderColor }}>&#10145;&#65039;</span>
           </button>
         ))}
       </div>
@@ -1276,6 +1705,219 @@ function TeaPartyScreen({ onBack, onEarnStar }: { onBack: () => void; onEarnStar
   );
 }
 
+// --- Bathroom screen (hub) ---
+function BathroomScreen({ onNavigate, onBack }: { onNavigate: (screen: Screen) => void; onBack: () => void }) {
+  return (
+    <div
+      className="min-h-screen flex flex-col items-center p-6 pt-20"
+      style={{ background: "linear-gradient(180deg, #e3f2fd 0%, #bbdefb 100%)" }}
+    >
+      <BackButton onClick={onBack} color="#1976d2" />
+
+      <h1 className="text-3xl font-black mb-2" style={{ color: "#1976d2" }}>
+        &#128701; Bathroom
+      </h1>
+      <p className="text-xl font-bold mb-6" style={{ color: "#42a5f5" }}>
+        What do you want to do?
+      </p>
+
+      <div className="flex flex-col gap-4 w-full max-w-md">
+        <button
+          className="room-btn animate-slide-up w-full"
+          style={{
+            background: "linear-gradient(135deg, #64b5f6, #1976d2)",
+            color: "#fff",
+            animationFillMode: "both",
+            flexDirection: "row",
+            gap: 16,
+            justifyContent: "flex-start",
+            paddingLeft: 24,
+          }}
+          onClick={() => onNavigate("potty")}
+        >
+          <span className="text-5xl">&#128701;</span>
+          <div className="text-left">
+            <div className="text-2xl">Potty Time!</div>
+            <div className="text-base font-semibold opacity-90">Learn to use the potty</div>
+          </div>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// --- Potty training screen ---
+function PottyScreen({ onBack, onEarnStar }: { onBack: () => void; onEarnStar: () => void }) {
+  type PottyStep = "start" | "sit" | "waiting" | "flush" | "wash" | "done";
+  const [step, setStep] = useState<PottyStep>("start");
+  const [showCelebration, setShowCelebration] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, []);
+
+  const steps: { id: PottyStep; emoji: string; label: string; instruction: string; nextLabel: string }[] = [
+    { id: "start", emoji: "&#128701;", label: "Time to go potty!", instruction: "When you feel like you need to go, walk to the potty!", nextLabel: "Sit on the potty!" },
+    { id: "sit", emoji: "&#128588;", label: "Sit down!", instruction: "Good job! Sit on the potty and wait a moment.", nextLabel: "Wait..." },
+    { id: "waiting", emoji: "&#9203;", label: "Waiting...", instruction: "You're doing great! Take your time.", nextLabel: "All done!" },
+    { id: "flush", emoji: "&#128166;", label: "Flush!", instruction: "Great job! Now let's flush the potty!", nextLabel: "Flush it!" },
+    { id: "wash", emoji: "&#129532;", label: "Wash hands!", instruction: "Always wash your hands with soap and water!", nextLabel: "Wash wash wash!" },
+    { id: "done", emoji: "&#127881;", label: "All done!", instruction: "You did it! You used the potty all by yourself!", nextLabel: "" },
+  ];
+
+  const currentStep = steps.find(s => s.id === step) ?? steps[0];
+  const currentIndex = steps.findIndex(s => s.id === step);
+
+  const advance = () => {
+    const nextSteps: Record<string, PottyStep> = {
+      start: "sit",
+      sit: "waiting",
+      waiting: "flush",
+      flush: "wash",
+      wash: "done",
+    };
+    const next = nextSteps[step];
+    if (next) {
+      if (step === "sit") {
+        setStep("waiting");
+        timerRef.current = setTimeout(() => {
+          setStep("flush");
+        }, 2000);
+      } else if (next === "done") {
+        setStep("done");
+        onEarnStar();
+        setShowCelebration(true);
+      } else {
+        setStep(next);
+      }
+    }
+  };
+
+  const reset = () => {
+    setStep("start");
+    setShowCelebration(false);
+  };
+
+  return (
+    <div
+      className="min-h-screen flex flex-col items-center p-6 pt-20"
+      style={{ background: "linear-gradient(180deg, #e3f2fd 0%, #bbdefb 100%)" }}
+    >
+      <BackButton onClick={onBack} color="#1976d2" />
+
+      {showCelebration && (
+        <Celebration
+          message="You used the potty! &#127881;&#128701;"
+          onDone={() => { setShowCelebration(false); reset(); }}
+        />
+      )}
+
+      <h1 className="text-3xl font-black mb-2" style={{ color: "#1976d2" }}>
+        &#128701; Potty Time!
+      </h1>
+
+      {/* Progress dots */}
+      <div className="flex gap-2 mb-4">
+        {steps.map((s, i) => (
+          <div
+            key={s.id}
+            style={{
+              width: 16,
+              height: 16,
+              borderRadius: "50%",
+              background: i <= currentIndex ? "#1976d2" : "#bbdefb",
+              border: "2px solid #1976d2",
+              transition: "all 0.3s ease",
+              transform: i === currentIndex ? "scale(1.3)" : "scale(1)",
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Visual scene */}
+      <div
+        className="w-full max-w-sm rounded-3xl p-6 mb-6 flex flex-col items-center relative"
+        style={{
+          background: "rgba(255,255,255,0.8)",
+          border: "4px solid #90caf9",
+          minHeight: 200,
+        }}
+      >
+        {/* Bathroom scene */}
+        <div className="flex gap-4 items-end mb-4">
+          <div className="text-5xl animate-float">&#128701;</div>
+          {step !== "start" && (
+            <div className="text-4xl animate-bounce-in">&#128103;</div>
+          )}
+          {step === "wash" && (
+            <div className="text-4xl animate-pop">&#128688;</div>
+          )}
+          {step === "flush" && (
+            <div className="text-3xl animate-pop">&#128166;</div>
+          )}
+        </div>
+
+        <div
+          className="text-6xl mb-3 animate-pop"
+          key={step}
+          dangerouslySetInnerHTML={{ __html: currentStep.emoji }}
+        />
+        <h2 className="text-2xl font-black mb-1" style={{ color: "#1976d2" }}>
+          {currentStep.label}
+        </h2>
+        <p className="text-lg font-bold text-center mb-4" style={{ color: "#42a5f5" }}>
+          {currentStep.instruction}
+        </p>
+
+        {/* Decorations */}
+        <div className="absolute top-2 left-3 text-lg">&#129532;</div>
+        <div className="absolute top-2 right-3 text-lg">&#129531;</div>
+        <div className="absolute bottom-2 left-3 text-lg animate-float">&#128038;</div>
+        <div className="absolute bottom-2 right-3 text-lg">&#128705;</div>
+      </div>
+
+      {/* Action button */}
+      {step !== "done" && step !== "waiting" && (
+        <button
+          className="game-btn animate-bounce-in"
+          style={{
+            background: "linear-gradient(135deg, #64b5f6, #1976d2)",
+            color: "#fff",
+            fontSize: "1.3rem",
+            padding: "16px 40px",
+            minWidth: 200,
+          }}
+          onClick={advance}
+        >
+          {currentStep.nextLabel}
+        </button>
+      )}
+
+      {step === "waiting" && (
+        <div className="text-xl font-bold animate-float" style={{ color: "#42a5f5" }}>
+          Taking your time... &#9203;
+        </div>
+      )}
+
+      {step === "done" && (
+        <button
+          className="game-btn animate-bounce-in"
+          style={{
+            background: "linear-gradient(135deg, #66bb6a, #43a047)",
+            color: "#fff",
+            fontSize: "1.3rem",
+            padding: "16px 40px",
+          }}
+          onClick={reset}
+        >
+          Do it again! &#128257;
+        </button>
+      )}
+    </div>
+  );
+}
+
 // --- Bedroom screen ---
 function BedroomScreen({ onBack, onEarnStar }: { onBack: () => void; onEarnStar: () => void }) {
   const items = [
@@ -1402,6 +2044,8 @@ function App() {
       {screen === "kitchen" && <KitchenScreen onNavigate={navigate} onBack={goBack} />}
       {screen === "playroom" && <PlayroomScreen onNavigate={navigate} onBack={goBack} />}
       {screen === "bedroom" && <BedroomScreen onBack={goBack} onEarnStar={earnStar} />}
+      {screen === "bathroom" && <BathroomScreen onNavigate={navigate} onBack={goBack} />}
+      {screen === "potty" && <PottyScreen onBack={goBack} onEarnStar={earnStar} />}
       {screen === "pizza" && <PizzaScreen onBack={goBack} onEarnStar={earnStar} />}
       {screen === "icecream" && <IceCreamScreen onBack={goBack} onEarnStar={earnStar} />}
       {screen === "soup" && <SoupScreen onBack={goBack} onEarnStar={earnStar} />}
