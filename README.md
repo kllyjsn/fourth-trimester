@@ -1,50 +1,80 @@
-# React + TypeScript + Vite
+# Fourth Trimester
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A calm, daily **10–15 minute postpartum recovery** companion. Every exercise is
+demonstrated by a short AI-generated instructional video so you can see
+exactly what the movement looks like — no ambiguity.
 
-Currently, two official plugins are available:
+**Bodyweight and movement only.** No gym, no equipment. Walks and light
+running count.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Program at a glance
 
-## Expanding the ESLint configuration
+A 12-week, 3-phase program based on standard postpartum rehab guidance
+(ACOG, pelvic-floor PT consensus, [BodySpec's 12-week blueprint][bodyspec]):
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+| Phase | Weeks | Focus |
+|------:|:-----:|:------|
+| 1 | 0–6  | Recovery, mobility, pelvic-floor connection |
+| 2 | 6–12 | Low-impact strength, stability, unilateral work |
+| 3 | 12+  | Progressive strength, return to impact (gated by hop test) |
 
-- Configure the top-level `parserOptions` property like this:
+Each daily session is ~10–15 minutes (shorter in Phase 1, longer as you
+progress) and rotates through a curated pool of bodyweight movements (see [`src/data/exercises.ts`](src/data/exercises.ts) and
+[`src/data/program.ts`](src/data/program.ts)).
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Safety features
+
+- Onboarding gate asks you to confirm clearance from your OB, midwife, or
+  pelvic-floor PT.
+- **Diastasis recti self-check** automatically removes planks / shoulder-tap
+  planks if you report a gap.
+- **C-section mode** hides prone abdominal work until you mark yourself
+  cleared.
+- **Hop-test gate** keeps running and lateral bounds locked until you pass it.
+- Every exercise lists red-flag signs to stop (leakage, heaviness, pain).
+- All progress is stored **locally** (localStorage). Nothing is sent anywhere.
+
+## Tech stack
+
+- React 18 + Vite 6 + TypeScript
+- Tailwind CSS (sage / cream palette)
+- Zustand for persisted local state
+- React Router 7
+- Lucide icons, Fraunces + Inter via Google Fonts
+
+## Video pipeline
+
+Demonstration clips are generated ahead of time with **Google Veo 3.1 Fast**
+via the Gemini API (chosen for the most realistic human motion currently
+available — see [Veo 3 vs Sora 2 comparison][veo-vs-sora] and
+[2026 roundup][2026-roundup]). Each clip is a silent 8-second loop showing
+correct form.
+
+Generation is a one-shot build-time step, not runtime:
+
+```bash
+# requires GEMINI_API_KEY in env
+npm run generate-videos
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+The script iterates over every exercise in `src/data/exercises.ts`, uses each
+exercise's `videoPrompt`, and writes MP4s to `public/videos/`.
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+## Development
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```bash
+npm install
+npm run dev        # local dev at http://localhost:5173
+npm run build      # production build
+npm run lint
+npm run typecheck
 ```
+
+## Disclaimer
+
+This app is informational only and is not medical advice. Always defer to your
+OB, midwife, or pelvic-floor physiotherapist.
+
+[bodyspec]: https://www.bodyspec.com/blog/post/the_ultimate_12week_postpartum_fitness_blueprint
+[veo-vs-sora]: https://www.veo3ai.io/blog/veo-3-vs-sora-2-ultimate-comparison-2026
+[2026-roundup]: https://lushbinary.com/blog/ai-video-generation-sora-veo-kling-seedance-comparison/
