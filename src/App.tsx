@@ -178,6 +178,7 @@ function HouseScreen({ onNavigate }: { onNavigate: (screen: Screen) => void }) {
 
   const handleRoomTap = (roomId: RoomId) => {
     if (walking) return;
+    if (walkTimerRef.current) { clearTimeout(walkTimerRef.current); walkTimerRef.current = null; }
     setWalking(true);
     setTargetRoom(roomId);
 
