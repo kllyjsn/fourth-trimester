@@ -17,10 +17,66 @@ type Screen =
   | "blocks"
   | "potty";
 
+// --- Cheering sound via Web Audio API ---
+function playCheerSound() {
+  try {
+    const ctx = new AudioContext();
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.15 + 0.4);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + i * 0.15);
+      osc.stop(ctx.currentTime + i * 0.15 + 0.4);
+    });
+    setTimeout(() => ctx.close(), 2000);
+  } catch (_) { /* audio not available */ }
+}
+
+// --- Confetti pieces ---
+const CONFETTI_COLORS = ["#ff6b6b", "#ffd93d", "#6bcb77", "#4d96ff", "#9b59b6", "#ff9ff3", "#ffa502", "#1dd1a1"];
+
+function ConfettiOverlay() {
+  const pieces = Array.from({ length: 40 }, (_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+    delay: Math.random() * 1.5,
+    size: 6 + Math.random() * 8,
+    duration: 2 + Math.random() * 2,
+  }));
+
+  return (
+    <>
+      {pieces.map((p) => (
+        <div
+          key={p.id}
+          className="confetti-piece"
+          style={{
+            left: `${p.left}%`,
+            background: p.color,
+            width: p.size,
+            height: p.size * (0.5 + Math.random() * 0.5),
+            animationDelay: `${p.delay}s`,
+            animationDuration: `${p.duration}s, ${p.duration * 0.5}s`,
+            borderRadius: Math.random() > 0.5 ? "50%" : "2px",
+          }}
+        />
+      ))}
+    </>
+  );
+}
+
 // --- Celebration overlay ---
 function Celebration({ message, onDone }: { message: string; onDone: () => void }) {
   useEffect(() => {
-    const t = setTimeout(onDone, 3000);
+    playCheerSound();
+    const t = setTimeout(onDone, 4000);
     return () => clearTimeout(t);
   }, [onDone]);
 
@@ -30,7 +86,8 @@ function Celebration({ message, onDone }: { message: string; onDone: () => void 
       style={{ background: "rgba(0,0,0,0.4)" }}
       onClick={onDone}
     >
-      <div className="animate-bounce-in bg-white rounded-3xl p-8 mx-4 text-center shadow-2xl max-w-sm">
+      <ConfettiOverlay />
+      <div className="animate-bounce-in bg-white rounded-3xl p-8 mx-4 text-center shadow-2xl max-w-sm relative z-10">
         <div className="text-6xl mb-4">
           <span className="star">&#11088;</span>
           <span className="star">&#11088;</span>

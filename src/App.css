@@ -200,6 +200,28 @@
   transform: scale(0.95);
 }
 
+@keyframes confetti-fall {
+  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+@keyframes confetti-sway {
+  0%, 100% { margin-left: 0; }
+  25% { margin-left: 15px; }
+  75% { margin-left: -15px; }
+}
+
+.confetti-piece {
+  position: fixed;
+  top: -20px;
+  z-index: 60;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  animation: confetti-fall 3s ease-in forwards, confetti-sway 1.5s ease-in-out infinite;
+}
+
 .star {
   display: inline-block;
   animation: sparkle 1s ease-in-out infinite;
