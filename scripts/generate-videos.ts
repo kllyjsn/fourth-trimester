@@ -21,7 +21,13 @@ const POLL_INTERVAL_MS = 10_000;
 const MAX_POLL_MINUTES = 10;
 
 const NEGATIVE_PROMPT =
-  "text, captions, subtitles, watermarks, logos, baby, infant, stroller, deformed anatomy, extra limbs, extra fingers, equipment, dumbbells, kettlebells, distorted motion, unrealistic physics";
+  "text, captions, subtitles, watermarks, logos, baby, infant, stroller, deformed anatomy, extra limbs, extra fingers, equipment, dumbbells, kettlebells, distorted motion, unrealistic physics, speech, voiceover, narration, dialogue, music, singing";
+
+// Prepended to every prompt to keep Veo's audio track empty — otherwise
+// breath-cueing prompts trip the audio safety filter and the whole
+// video gets rejected.
+const SILENT_PREAMBLE =
+  "Silent instructional demonstration video. No speech, no narration, no voiceover, no music, no sound effects — only very quiet ambient room tone.";
 
 async function fileExists(p: string): Promise<boolean> {
   try {
@@ -71,7 +77,7 @@ async function main() {
       continue;
     }
 
-    const prompt = exercise.videoPrompt;
+    const prompt = `${SILENT_PREAMBLE}\n\n${exercise.videoPrompt}`;
     console.log(`${label} starting… (${prompt.length} chars)`);
 
     try {
@@ -84,10 +90,6 @@ async function main() {
           negativePrompt: NEGATIVE_PROMPT,
           numberOfVideos: 1,
           personGeneration: "allow_all",
-          // Silent demonstrations only: avoids Veo's audio safety filter,
-          // which was rejecting many breath-cueing prompts with
-          // "issue with the audio for your prompt".
-          generateAudio: false,
         },
       });
 
