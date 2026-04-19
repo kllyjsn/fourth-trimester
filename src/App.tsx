@@ -7,13 +7,15 @@ type Screen =
   | "kitchen"
   | "playroom"
   | "bedroom"
+  | "bathroom"
   | "pizza"
   | "icecream"
   | "soup"
   | "shapes"
   | "colors"
   | "teaparty"
-  | "blocks";
+  | "blocks"
+  | "potty";
 
 // --- Celebration overlay ---
 function Celebration({ message, onDone }: { message: string; onDone: () => void }) {
@@ -154,7 +156,7 @@ function WelcomeScreen({ onEnter }: { onEnter: () => void }) {
 }
 
 // --- Dollhouse screen with walking girl ---
-type RoomId = "kitchen" | "playroom" | "bedroom";
+type RoomId = "kitchen" | "playroom" | "bedroom" | "bathroom";
 
 function HouseScreen({ onNavigate }: { onNavigate: (screen: Screen) => void }) {
   const [girlRoom, setGirlRoom] = useState<RoomId | "outside">("outside");
@@ -171,6 +173,7 @@ function HouseScreen({ onNavigate }: { onNavigate: (screen: Screen) => void }) {
     { id: "bedroom", screen: "bedroom", emoji: "&#128716;", label: "Bedroom", bgColor: "#e8daef", borderColor: "#af7ac5", row: 0, col: 0, items: ["&#128059;&#8205;&#10052;&#65039;", "&#128161;"] },
     { id: "playroom", screen: "playroom", emoji: "&#129513;", label: "Playroom", bgColor: "#d5f5e3", borderColor: "#58d68d", row: 0, col: 1, items: ["&#127912;", "&#129513;"] },
     { id: "kitchen", screen: "kitchen", emoji: "&#129379;", label: "Kitchen", bgColor: "#fdebd0", borderColor: "#f0b27a", row: 1, col: 0, items: ["&#127858;", "&#129387;"] },
+    { id: "bathroom", screen: "bathroom", emoji: "&#128701;", label: "Bathroom", bgColor: "#e3f2fd", borderColor: "#64b5f6", row: 1, col: 1, items: ["&#128701;", "&#129532;"] },
   ];
 
   const handleRoomTap = (roomId: RoomId) => {
@@ -204,12 +207,14 @@ function HouseScreen({ onNavigate }: { onNavigate: (screen: Screen) => void }) {
         case "bedroom": return { top: "18%", left: "25%" };
         case "playroom": return { top: "18%", left: "68%" };
         case "kitchen": return { top: "58%", left: "25%" };
+        case "bathroom": return { top: "58%", left: "68%" };
       }
     }
     switch (girlRoom) {
       case "bedroom": return { top: "22%", left: "25%" };
       case "playroom": return { top: "22%", left: "68%" };
       case "kitchen": return { top: "62%", left: "25%" };
+      case "bathroom": return { top: "62%", left: "68%" };
       default: return { top: "78%", left: "50%" };
     }
   };
@@ -291,8 +296,8 @@ function HouseScreen({ onNavigate }: { onNavigate: (screen: Screen) => void }) {
             overflow: "hidden",
           }}
         >
-          {/* Room grid - 2x2 with bottom-right being garden/yard */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", width: "100%", height: "100%", gap: 0 }}>
+          {/* Room grid - 2x2 */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", width: "100%", height: "100%", gap: 0, position: "relative" }}>
             {/* Bedroom - top left */}
             <button
               onClick={() => handleRoomTap("bedroom")}
@@ -312,12 +317,13 @@ function HouseScreen({ onNavigate }: { onNavigate: (screen: Screen) => void }) {
               }}
               className={`dollhouse-room ${targetRoom === "bedroom" ? "animate-sparkle" : ""}`}
             >
-              <div className="text-3xl" style={{ lineHeight: 1 }}>&#128716;</div>
-              <div style={{ fontSize: "0.6rem", fontWeight: 800, color: rooms[0].borderColor }}>Bedroom</div>
-              {/* Room furniture */}
-              <div className="absolute top-1 left-1 text-xs">&#128059;&#8205;&#10052;&#65039;</div>
-              <div className="absolute top-1 right-1 text-xs">&#128161;</div>
-              <div className="absolute bottom-1 right-1 text-xs">&#128218;</div>
+              {/* Bed furniture */}
+              <div className="absolute top-0.5 left-0.5" style={{ fontSize: "1.4rem" }}>&#128719;&#65039;</div>
+              <div className="text-2xl" style={{ lineHeight: 1 }}>&#128716;</div>
+              <div style={{ fontSize: "0.55rem", fontWeight: 800, color: rooms[0].borderColor }}>Bedroom</div>
+              <div className="absolute top-0.5 right-0.5 text-xs">&#128161;</div>
+              <div className="absolute bottom-0.5 left-0.5 text-xs">&#128059;&#8205;&#10052;&#65039;</div>
+              <div className="absolute bottom-0.5 right-0.5 text-xs">&#128218;</div>
             </button>
 
             {/* Playroom - top right */}
@@ -339,11 +345,11 @@ function HouseScreen({ onNavigate }: { onNavigate: (screen: Screen) => void }) {
               }}
               className={`dollhouse-room ${targetRoom === "playroom" ? "animate-sparkle" : ""}`}
             >
-              <div className="text-3xl" style={{ lineHeight: 1 }}>&#129513;</div>
-              <div style={{ fontSize: "0.6rem", fontWeight: 800, color: rooms[1].borderColor }}>Playroom</div>
-              <div className="absolute top-1 left-1 text-xs">&#127912;</div>
-              <div className="absolute top-1 right-1 text-xs">&#129513;</div>
-              <div className="absolute bottom-1 left-1 text-xs">&#127922;</div>
+              <div className="text-2xl" style={{ lineHeight: 1 }}>&#129513;</div>
+              <div style={{ fontSize: "0.55rem", fontWeight: 800, color: rooms[1].borderColor }}>Playroom</div>
+              <div className="absolute top-0.5 left-0.5 text-xs">&#127912;</div>
+              <div className="absolute top-0.5 right-0.5 text-xs">&#129513;</div>
+              <div className="absolute bottom-0.5 left-0.5 text-xs">&#127922;</div>
             </button>
 
             {/* Kitchen - bottom left */}
@@ -365,44 +371,82 @@ function HouseScreen({ onNavigate }: { onNavigate: (screen: Screen) => void }) {
               }}
               className={`dollhouse-room ${targetRoom === "kitchen" ? "animate-sparkle" : ""}`}
             >
-              <div className="text-3xl" style={{ lineHeight: 1 }}>&#129379;</div>
-              <div style={{ fontSize: "0.6rem", fontWeight: 800, color: rooms[2].borderColor }}>Kitchen</div>
-              <div className="absolute top-1 left-1 text-xs">&#127858;</div>
-              <div className="absolute top-1 right-1 text-xs">&#129387;</div>
-              <div className="absolute bottom-1 right-1 text-xs">&#127829;</div>
+              <div className="text-2xl" style={{ lineHeight: 1 }}>&#129379;</div>
+              <div style={{ fontSize: "0.55rem", fontWeight: 800, color: rooms[2].borderColor }}>Kitchen</div>
+              <div className="absolute top-0.5 left-0.5 text-xs">&#127858;</div>
+              <div className="absolute top-0.5 right-0.5 text-xs">&#129387;</div>
+              <div className="absolute bottom-0.5 right-0.5 text-xs">&#127829;</div>
             </button>
 
-            {/* Living room / Door area - bottom right */}
-            <div
+            {/* Bathroom - bottom right */}
+            <button
+              onClick={() => handleRoomTap("bathroom")}
               style={{
-                background: "#fce4ec",
-                border: "3px solid #f48fb1",
+                background: rooms[3].bgColor,
+                border: `3px solid ${rooms[3].borderColor}`,
                 borderRadius: 0,
+                cursor: "pointer",
                 position: "relative",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 2,
+                transition: "transform 0.2s, box-shadow 0.2s",
+                padding: 4,
+              }}
+              className={`dollhouse-room ${targetRoom === "bathroom" ? "animate-sparkle" : ""}`}
+            >
+              <div className="text-2xl" style={{ lineHeight: 1 }}>&#128701;</div>
+              <div style={{ fontSize: "0.55rem", fontWeight: 800, color: rooms[3].borderColor }}>Bathroom</div>
+              <div className="absolute top-0.5 left-0.5 text-xs">&#129532;</div>
+              <div className="absolute top-0.5 right-0.5 text-xs">&#128705;</div>
+              <div className="absolute bottom-0.5 right-0.5 text-xs">&#129531;</div>
+            </button>
+
+            {/* Stairs connecting top and bottom floors */}
+            <div
+              style={{
+                position: "absolute",
+                top: "35%",
+                left: "42%",
+                width: "16%",
+                height: "30%",
+                zIndex: 10,
+                pointerEvents: "none",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              <div className="text-2xl">&#128010;</div>
-              <div style={{ fontSize: "0.6rem", fontWeight: 800, color: "#f48fb1" }}>Living Room</div>
-              {/* Door */}
-              <div
-                className="absolute bottom-0 left-1/2 -translate-x-1/2"
-                style={{
-                  width: "35%",
-                  height: "40%",
-                  background: "#8d6e63",
-                  borderRadius: "8px 8px 0 0",
-                  border: "2px solid #6d4c41",
-                }}
-              >
-                <div className="absolute top-1/2 right-1 w-1.5 h-1.5 rounded-full" style={{ background: "#ffd93d" }} />
+              {/* Stair steps */}
+              <div style={{
+                width: "100%",
+                height: "100%",
+                background: "linear-gradient(180deg, #d4a574 0%, #c09060 100%)",
+                borderRadius: 4,
+                border: "2px solid #a0764a",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-evenly",
+                padding: "2px 4px",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+              }}>
+                {[0, 1, 2, 3, 4].map((step) => (
+                  <div
+                    key={step}
+                    style={{
+                      width: `${100 - step * 8}%`,
+                      height: "14%",
+                      background: step % 2 === 0 ? "#e8c9a0" : "#dbb88a",
+                      borderRadius: 2,
+                      marginLeft: `${step * 4}%`,
+                      border: "1px solid #c09060",
+                    }}
+                  />
+                ))}
               </div>
-              <div className="absolute top-1 left-1 text-xs">&#128250;</div>
-              <div className="absolute top-1 right-1 text-xs">&#127796;</div>
             </div>
           </div>
         </div>
@@ -1603,6 +1647,219 @@ function TeaPartyScreen({ onBack, onEarnStar }: { onBack: () => void; onEarnStar
   );
 }
 
+// --- Bathroom screen (hub) ---
+function BathroomScreen({ onNavigate, onBack }: { onNavigate: (screen: Screen) => void; onBack: () => void }) {
+  return (
+    <div
+      className="min-h-screen flex flex-col items-center p-6 pt-20"
+      style={{ background: "linear-gradient(180deg, #e3f2fd 0%, #bbdefb 100%)" }}
+    >
+      <BackButton onClick={onBack} color="#1976d2" />
+
+      <h1 className="text-3xl font-black mb-2" style={{ color: "#1976d2" }}>
+        &#128701; Bathroom
+      </h1>
+      <p className="text-xl font-bold mb-6" style={{ color: "#42a5f5" }}>
+        What do you want to do?
+      </p>
+
+      <div className="flex flex-col gap-4 w-full max-w-md">
+        <button
+          className="room-btn animate-slide-up w-full"
+          style={{
+            background: "linear-gradient(135deg, #64b5f6, #1976d2)",
+            color: "#fff",
+            animationFillMode: "both",
+            flexDirection: "row",
+            gap: 16,
+            justifyContent: "flex-start",
+            paddingLeft: 24,
+          }}
+          onClick={() => onNavigate("potty")}
+        >
+          <span className="text-5xl">&#128701;</span>
+          <div className="text-left">
+            <div className="text-2xl">Potty Time!</div>
+            <div className="text-base font-semibold opacity-90">Learn to use the potty</div>
+          </div>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// --- Potty training screen ---
+function PottyScreen({ onBack, onEarnStar }: { onBack: () => void; onEarnStar: () => void }) {
+  type PottyStep = "start" | "sit" | "waiting" | "flush" | "wash" | "done";
+  const [step, setStep] = useState<PottyStep>("start");
+  const [showCelebration, setShowCelebration] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, []);
+
+  const steps: { id: PottyStep; emoji: string; label: string; instruction: string; nextLabel: string }[] = [
+    { id: "start", emoji: "&#128701;", label: "Time to go potty!", instruction: "When you feel like you need to go, walk to the potty!", nextLabel: "Sit on the potty!" },
+    { id: "sit", emoji: "&#128588;", label: "Sit down!", instruction: "Good job! Sit on the potty and wait a moment.", nextLabel: "Wait..." },
+    { id: "waiting", emoji: "&#9203;", label: "Waiting...", instruction: "You're doing great! Take your time.", nextLabel: "All done!" },
+    { id: "flush", emoji: "&#128166;", label: "Flush!", instruction: "Great job! Now let's flush the potty!", nextLabel: "Flush it!" },
+    { id: "wash", emoji: "&#129532;", label: "Wash hands!", instruction: "Always wash your hands with soap and water!", nextLabel: "Wash wash wash!" },
+    { id: "done", emoji: "&#127881;", label: "All done!", instruction: "You did it! You used the potty all by yourself!", nextLabel: "" },
+  ];
+
+  const currentStep = steps.find(s => s.id === step) ?? steps[0];
+  const currentIndex = steps.findIndex(s => s.id === step);
+
+  const advance = () => {
+    const nextSteps: Record<string, PottyStep> = {
+      start: "sit",
+      sit: "waiting",
+      waiting: "flush",
+      flush: "wash",
+      wash: "done",
+    };
+    const next = nextSteps[step];
+    if (next) {
+      if (step === "sit") {
+        setStep("waiting");
+        timerRef.current = setTimeout(() => {
+          setStep("flush");
+        }, 2000);
+      } else if (next === "done") {
+        setStep("done");
+        onEarnStar();
+        setShowCelebration(true);
+      } else {
+        setStep(next);
+      }
+    }
+  };
+
+  const reset = () => {
+    setStep("start");
+    setShowCelebration(false);
+  };
+
+  return (
+    <div
+      className="min-h-screen flex flex-col items-center p-6 pt-20"
+      style={{ background: "linear-gradient(180deg, #e3f2fd 0%, #bbdefb 100%)" }}
+    >
+      <BackButton onClick={onBack} color="#1976d2" />
+
+      {showCelebration && (
+        <Celebration
+          message="You used the potty! &#127881;&#128701;"
+          onDone={() => { setShowCelebration(false); reset(); }}
+        />
+      )}
+
+      <h1 className="text-3xl font-black mb-2" style={{ color: "#1976d2" }}>
+        &#128701; Potty Time!
+      </h1>
+
+      {/* Progress dots */}
+      <div className="flex gap-2 mb-4">
+        {steps.map((s, i) => (
+          <div
+            key={s.id}
+            style={{
+              width: 16,
+              height: 16,
+              borderRadius: "50%",
+              background: i <= currentIndex ? "#1976d2" : "#bbdefb",
+              border: "2px solid #1976d2",
+              transition: "all 0.3s ease",
+              transform: i === currentIndex ? "scale(1.3)" : "scale(1)",
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Visual scene */}
+      <div
+        className="w-full max-w-sm rounded-3xl p-6 mb-6 flex flex-col items-center relative"
+        style={{
+          background: "rgba(255,255,255,0.8)",
+          border: "4px solid #90caf9",
+          minHeight: 200,
+        }}
+      >
+        {/* Bathroom scene */}
+        <div className="flex gap-4 items-end mb-4">
+          <div className="text-5xl animate-float">&#128701;</div>
+          {step !== "start" && (
+            <div className="text-4xl animate-bounce-in">&#128103;</div>
+          )}
+          {step === "wash" && (
+            <div className="text-4xl animate-pop">&#128688;</div>
+          )}
+          {step === "flush" && (
+            <div className="text-3xl animate-pop">&#128166;</div>
+          )}
+        </div>
+
+        <div
+          className="text-6xl mb-3 animate-pop"
+          key={step}
+          dangerouslySetInnerHTML={{ __html: currentStep.emoji }}
+        />
+        <h2 className="text-2xl font-black mb-1" style={{ color: "#1976d2" }}>
+          {currentStep.label}
+        </h2>
+        <p className="text-lg font-bold text-center mb-4" style={{ color: "#42a5f5" }}>
+          {currentStep.instruction}
+        </p>
+
+        {/* Decorations */}
+        <div className="absolute top-2 left-3 text-lg">&#129532;</div>
+        <div className="absolute top-2 right-3 text-lg">&#129531;</div>
+        <div className="absolute bottom-2 left-3 text-lg animate-float">&#128038;</div>
+        <div className="absolute bottom-2 right-3 text-lg">&#128705;</div>
+      </div>
+
+      {/* Action button */}
+      {step !== "done" && step !== "waiting" && (
+        <button
+          className="game-btn animate-bounce-in"
+          style={{
+            background: "linear-gradient(135deg, #64b5f6, #1976d2)",
+            color: "#fff",
+            fontSize: "1.3rem",
+            padding: "16px 40px",
+            minWidth: 200,
+          }}
+          onClick={advance}
+        >
+          {currentStep.nextLabel}
+        </button>
+      )}
+
+      {step === "waiting" && (
+        <div className="text-xl font-bold animate-float" style={{ color: "#42a5f5" }}>
+          Taking your time... &#9203;
+        </div>
+      )}
+
+      {step === "done" && (
+        <button
+          className="game-btn animate-bounce-in"
+          style={{
+            background: "linear-gradient(135deg, #66bb6a, #43a047)",
+            color: "#fff",
+            fontSize: "1.3rem",
+            padding: "16px 40px",
+          }}
+          onClick={reset}
+        >
+          Do it again! &#128257;
+        </button>
+      )}
+    </div>
+  );
+}
+
 // --- Bedroom screen ---
 function BedroomScreen({ onBack, onEarnStar }: { onBack: () => void; onEarnStar: () => void }) {
   const items = [
@@ -1729,6 +1986,8 @@ function App() {
       {screen === "kitchen" && <KitchenScreen onNavigate={navigate} onBack={goBack} />}
       {screen === "playroom" && <PlayroomScreen onNavigate={navigate} onBack={goBack} />}
       {screen === "bedroom" && <BedroomScreen onBack={goBack} onEarnStar={earnStar} />}
+      {screen === "bathroom" && <BathroomScreen onNavigate={navigate} onBack={goBack} />}
+      {screen === "potty" && <PottyScreen onBack={goBack} onEarnStar={earnStar} />}
       {screen === "pizza" && <PizzaScreen onBack={goBack} onEarnStar={earnStar} />}
       {screen === "icecream" && <IceCreamScreen onBack={goBack} onEarnStar={earnStar} />}
       {screen === "soup" && <SoupScreen onBack={goBack} onEarnStar={earnStar} />}
