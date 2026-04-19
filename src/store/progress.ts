@@ -113,10 +113,16 @@ export const useProgress = create<ProgressState>()(
  * to the calendar rather than forcing them to catch up.
  */
 export function computeTodayIndex(state: ProgressState): number {
-  const start = new Date(state.startDate + "T00:00:00");
+  const [sy, sm, sd] = state.startDate.split("-").map(Number);
   const now = new Date();
+  const startUtcDay = Date.UTC(sy, sm - 1, sd);
+  const nowUtcDay = Date.UTC(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+  );
   const diffDays = Math.floor(
-    (now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
+    (nowUtcDay - startUtcDay) / (1000 * 60 * 60 * 24),
   );
   const headStartDays = Math.max(0, state.startWeeksPostpartum) * 7;
   return Math.max(0, diffDays + headStartDays);
