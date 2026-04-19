@@ -1022,7 +1022,7 @@ function ColorsScreen({ onBack, onEarnStar }: { onBack: () => void; onEarnStar: 
       {showCelebration && (
         <Celebration
           message="You know all your colors! &#127912;"
-          onDone={() => { setShowCelebration(false); setScore(0); setCurrentIndex(0); }}
+          onDone={() => { setShowCelebration(false); setScore(0); setCurrentIndex(0); setShuffled(shuffle()); }}
         />
       )}
 
